@@ -52,18 +52,32 @@
   </div>
 
   <script>
-    function download(format) {
+    async function download(format) {
       const youtubeLink = document.getElementById('youtubeLink').value;
       if (!youtubeLink) {
         alert('Please enter a valid YouTube link.');
         return;
       }
 
-      // Replace with your backend API endpoint
-      const apiUrl = `https://your-backend-api.com/download?url=${encodeURIComponent(youtubeLink)}&format=${format}`;
+      try {
+        const response = await fetch('/download', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: youtubeLink, format }),
+        });
 
-      // Redirect or fetch the download link
-      window.open(apiUrl, '_blank');
+        if (!response.ok) {
+          throw new Error('Failed to download the file.');
+        }
+
+        const data = await response.json();
+        window.open(data.downloadLink, '_blank');
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while downloading the file.');
+      }
     }
   </script>
 </body>
